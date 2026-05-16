@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
@@ -7,6 +7,7 @@ import { registerUser } from "@/lib/actions/auth";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { SocialLogin } from "@/components/auth/SocialLogin";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -41,6 +42,7 @@ export default function RegisterPage() {
             {pending ? "Creando…" : "Registrarse"}
           </Button>
         </form>
+        <SocialLogin />
         <p className="mt-4 text-center text-sm text-emerald-700">
           <Link href="/login" className="font-medium text-emerald-600 hover:underline">
             Volver al login

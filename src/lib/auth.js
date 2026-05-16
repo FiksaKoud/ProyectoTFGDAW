@@ -1,6 +1,7 @@
-﻿import NextAuth from "next-auth";
+import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
@@ -11,6 +12,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/login",
   },
   providers: [
+    Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      allowDangerousEmailAccountLinking: true,
+    }),
     Credentials({
       name: "credentials",
       credentials: {
@@ -34,6 +40,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           email: user.email,
           name: user.name,
           image: user.image,
+          role: user.role,
         };
       },
     }),
@@ -46,12 +53,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
     jwt({ token, user }) {
-      if (user?.id) token.sub = user.id;
+      if (user) {
+        token.sub = user.id;
+        token.role = user.role;
+      }
       return token;
     },
     session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
+        session.user.role = token.role;
       }
       return session;
     },
@@ -65,4 +76,12 @@ export async function requireUserId() {
     throw new Error("No autorizado");
   }
   return userId;
+}
+
+export async function requireAdmin() {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") {
+    throw new Error("Acceso denegado: se requiere rol de administrador");
+  }
+  return session.user.id;
 }

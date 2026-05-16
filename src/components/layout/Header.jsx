@@ -9,7 +9,7 @@ export async function Header() {
   const user = session?.user
     ? await prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { name: true, email: true, image: true },
+        select: { name: true, email: true, image: true, role: true },
       })
     : null;
 
@@ -44,6 +44,11 @@ export async function Header() {
               </div>
               <span className="hidden text-sm font-semibold text-emerald-800 sm:inline">
                 {user.name ?? "Mi Perfil"}
+                {user.role === "ADMIN" && (
+                  <span className="ml-2 rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">
+                    ADMIN
+                  </span>
+                )}
               </span>
             </Link>
             <LogoutButton />

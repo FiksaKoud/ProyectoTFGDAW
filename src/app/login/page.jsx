@@ -1,6 +1,7 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { LoginForm } from "@/components/auth/LoginForm";
+import { SocialLogin } from "@/components/auth/SocialLogin";
 
 export const metadata = { title: "Iniciar sesión" };
 
@@ -13,6 +14,7 @@ export default function LoginPage() {
           Accede a tu cuenta SmartCart
         </p>
         <LoginForm />
+        <SocialLogin />
         <p className="mt-4 text-center text-sm text-emerald-700">
           ¿No tienes cuenta?{" "}
           <Link href="/register" className="font-medium text-emerald-600 hover:underline">

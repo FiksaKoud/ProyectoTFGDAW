@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   LayoutDashboard,
   ListChecks,
@@ -9,6 +10,7 @@ import {
   Scale,
   Store,
   User,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,8 +23,16 @@ const links = [
   { href: "/dashboard/perfil", label: "Perfil", icon: User },
 ];
 
+const adminLinks = [
+  { href: "/dashboard/usuarios", label: "Usuarios", icon: Users },
+];
+
 export function DashboardNav() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === "ADMIN";
+
+  const allLinks = isAdmin ? [...links, ...adminLinks] : links;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-emerald-100 bg-white/95 backdrop-blur md:static md:border-0 md:bg-transparent md:backdrop-blur-none">
@@ -49,6 +59,35 @@ export function DashboardNav() {
             </li>
           );
         })}
+
+        {isAdmin && (
+          <>
+            <li className="hidden md:block mt-2 pt-4 border-t border-emerald-100">
+              <p className="px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-400">
+                Administración
+              </p>
+            </li>
+            {adminLinks.map(({ href, label, icon: Icon }) => {
+              const active = pathname === href || pathname.startsWith(href);
+              return (
+                <li key={href} className="flex-1 md:flex-none">
+                  <Link
+                    href={href}
+                    className={cn(
+                      "flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-xs font-medium transition md:flex-row md:gap-3 md:px-4 md:py-3 md:text-sm",
+                      active
+                        ? "bg-emerald-600 text-white md:bg-emerald-50 md:text-emerald-900"
+                        : "text-emerald-700 hover:bg-emerald-50",
+                    )}
+                  >
+                    <Icon className="h-5 w-5 shrink-0" />
+                    <span>{label}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </>
+        )}
       </ul>
     </nav>
   );
