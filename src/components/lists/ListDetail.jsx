@@ -1,17 +1,31 @@
-﻿"use client";
+"use client";
 
 import { useTransition } from "react";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import {
-  addItemToList,
-  removeItemFromList,
-  updateListItemQuantity,
-} from "@/lib/actions/shopping-lists";
+  añadirItemALista,
+  quitarItemDeLista,
+  actualizarCantidadItem,
+  añadidoRapidoProductoALista,
+} from "@/lib/actions/listas-compra";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 
-export function ListDetail({ listId, items, availableProducts }) {
-  const [pending, startTransition] = useTransition();
+export function DetalleListaCompra({
+  idLista,
+  nombreLista,
+  items,
+  productosDisponibles,
+  supermercados = [],
+  idSupermercadoDefecto,
+}) {
+  const [pendiente, iniciarTransicion] = useTransition();
+
+  // Intentar emparejar el nombre de la lista con un supermercado para el valor por defecto
+  const idSupermercadoSugerido = supermercados.find(
+    (s) => s.name.toLowerCase() === nombreLista?.toLowerCase()
+  )?.id ?? idSupermercadoDefecto;
 
   return (
     <div className="space-y-6">
@@ -32,10 +46,10 @@ export function ListDetail({ listId, items, availableProducts }) {
                     type="button"
                     variant="secondary"
                     size="sm"
-                    disabled={pending || item.quantity <= 1}
+                    disabled={pendiente || item.quantity <= 1}
                     onClick={() =>
-                      startTransition(() => {
-                        void updateListItemQuantity(item.id, item.quantity - 1);
+                      iniciarTransicion(() => {
+                        void actualizarCantidadItem(item.id, item.quantity - 1);
                       })
                     }
                   >
@@ -46,10 +60,10 @@ export function ListDetail({ listId, items, availableProducts }) {
                     type="button"
                     variant="secondary"
                     size="sm"
-                    disabled={pending}
+                    disabled={pendiente}
                     onClick={() =>
-                      startTransition(() => {
-                        void updateListItemQuantity(item.id, item.quantity + 1);
+                      iniciarTransicion(() => {
+                        void actualizarCantidadItem(item.id, item.quantity + 1);
                       })
                     }
                   >
@@ -59,10 +73,10 @@ export function ListDetail({ listId, items, availableProducts }) {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    disabled={pending}
+                    disabled={pendiente}
                     onClick={() =>
-                      startTransition(() => {
-                        void removeItemFromList(item.id);
+                      iniciarTransicion(() => {
+                        void quitarItemDeLista(item.id);
                       })
                     }
                   >
@@ -76,24 +90,64 @@ export function ListDetail({ listId, items, availableProducts }) {
       </Card>
 
       <Card>
-        <h2 className="mb-4 font-semibold text-emerald-950">Añadir producto</h2>
-        {availableProducts.length === 0 ? (
+        <h2 className="mb-4 font-semibold text-emerald-950">Añadido rápido</h2>
+        <form
+          action={(fd) => {
+            const name = fd.get("name");
+            const price = fd.get("price");
+            const supermarketId = fd.get("supermarketId");
+            iniciarTransicion(async () => {
+              await añadidoRapidoProductoALista(idLista, name, price, supermarketId);
+            });
+          }}
+          className="grid gap-3 sm:grid-cols-4 sm:items-end"
+        >
+          <div className="sm:col-span-2">
+            <Input name="name" label="Nombre del producto" placeholder="Ej. Pan" required />
+          </div>
+          <div>
+            <Input name="price" label="Precio (€)" type="number" step="0.01" placeholder="0.00" />
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-emerald-700">Supermercado</label>
+            <select
+              name="supermarketId"
+              defaultValue={idSupermercadoSugerido ?? supermercados[0]?.id}
+              className="h-11 w-full rounded-xl border border-emerald-200 bg-white px-3 text-sm"
+            >
+              {supermercados.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Button type="submit" disabled={pendiente} className="sm:col-span-4">
+            Crear y añadir
+          </Button>
+        </form>
+      </Card>
+
+      <Card>
+        <h2 className="mb-4 font-semibold text-emerald-950">Elegir de mis productos</h2>
+        {productosDisponibles.length === 0 ? (
           <p className="text-sm text-emerald-700">No hay más productos disponibles.</p>
         ) : (
-          <ul className="space-y-2">
-            {availableProducts.map((product) => (
+          <ul className="max-h-60 overflow-y-auto space-y-2 pr-1">
+            {productosDisponibles.map((producto) => (
               <li
-                key={product.id}
+                key={producto.id}
                 className="flex items-center justify-between rounded-xl border border-emerald-100 px-3 py-2"
               >
-                <span className="text-sm">{product.name}</span>
+                <span className="text-sm">{producto.name}</span>
                 <Button
                   type="button"
                   size="sm"
-                  disabled={pending}
+                  variant="secondary"
+                  disabled={pendiente}
                   onClick={() =>
-                    startTransition(() => {
-                      void addItemToList(listId, product.id);
+                    iniciarTransicion(() => {
+                      void añadirItemALista(idLista, producto.id);
                     })
                   }
                 >

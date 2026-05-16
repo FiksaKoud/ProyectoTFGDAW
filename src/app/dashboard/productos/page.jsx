@@ -1,19 +1,19 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { Suspense } from "react";
 import { Plus } from "lucide-react";
-import { ProductGrid } from "@/components/products/ProductGrid";
+import { CuadriculaProductos } from "@/components/products/ProductGrid";
 import { ProductCardSkeleton } from "@/components/ui/Skeleton";
-import { getSupermarkets } from "@/lib/actions/supermarkets";
-import { getPreferredSupermarketId } from "@/lib/actions/preferences";
-import { SupermarketSelector } from "@/components/supermarkets/SupermarketSelector";
+import { obtenerSupermercados } from "@/lib/actions/supermercados";
+import { obtenerIdSupermercadoPreferido } from "@/lib/actions/preferencias";
+import { SelectorSupermercado } from "@/components/supermarkets/SupermarketSelector";
 import { Card } from "@/components/ui/Card";
 
 export const metadata = { title: "Productos" };
 
-export default async function ProductsPage() {
-  const [supermarkets, preferredId] = await Promise.all([
-    getSupermarkets(),
-    getPreferredSupermarketId(),
+export default async function PaginaProductos() {
+  const [supermercados, idPreferido] = await Promise.all([
+    obtenerSupermercados(),
+    obtenerIdSupermercadoPreferido(),
   ]);
 
   return (
@@ -26,7 +26,7 @@ export default async function ProductsPage() {
           </p>
         </div>
         <Link
-          href="/dashboard/products/new"
+          href="/dashboard/productos/nuevo"
           className="inline-flex h-11 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-medium text-white hover:bg-emerald-700"
         >
           <Plus className="h-4 w-4" />
@@ -35,22 +35,23 @@ export default async function ProductsPage() {
       </div>
 
       <Card>
-        <SupermarketSelector
-          supermarkets={supermarkets}
-          selectedId={preferredId ?? supermarkets[0]?.id ?? null}
+        <SelectorSupermercado
+          supermercados={supermercados}
+          idSeleccionado={idPreferido ?? supermercados[0]?.id ?? null}
         />
       </Card>
 
       <Suspense
+        key={idPreferido ?? "default"}
         fallback={
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 6 }).map((_, i) => (
-              <ProductCardSkeleton key={i} />
+              <div key={i} className="h-40 animate-pulse rounded-2xl bg-emerald-50" />
             ))}
           </div>
         }
       >
-        <ProductGrid />
+        <CuadriculaProductos supermarketId={idPreferido ?? supermercados[0]?.id} />
       </Suspense>
     </div>
   );

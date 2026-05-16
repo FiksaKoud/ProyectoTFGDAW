@@ -1,23 +1,26 @@
 import { v2 as cloudinary } from "cloudinary";
 
 function getCloudinaryConfig() {
-  if (process.env.CLOUDINARY_URL) {
-    return { url: process.env.CLOUDINARY_URL };
+  const url = process.env.CLOUDINARY_URL;
+
+  if (url && url.startsWith("cloudinary://")) {
+    return { url };
   }
 
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const apiKey = process.env.CLOUDINARY_API_KEY;
   const apiSecret = process.env.CLOUDINARY_API_SECRET;
 
-  if (!cloudName || !apiKey || !apiSecret) {
-    return null;
+  if (cloudName && apiKey && apiSecret) {
+    return { cloudName, apiKey, apiSecret };
   }
 
-  return { cloudName, apiKey, apiSecret };
+  return null;
 }
 
 export function isCloudinaryConfigured() {
-  return getCloudinaryConfig() !== null;
+  const config = getCloudinaryConfig();
+  return config !== null;
 }
 
 export async function uploadImage(file, userId, folder) {

@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { ArrowRight, BarChart3, Scale, Store } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -10,9 +10,6 @@ export default async function HomePage() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20">
       <section className="text-center">
-        <p className="mb-4 inline-flex rounded-full bg-emerald-100 px-4 py-1 text-sm font-medium text-emerald-800">
-          Proyecto final DAW · SmartCart
-        </p>
         <h1 className="text-4xl font-bold tracking-tight text-emerald-950 sm:text-5xl">
           Compara tu cesta entre supermercados y{" "}
           <span className="text-emerald-600">ahorra de verdad</span>

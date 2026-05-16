@@ -1,18 +1,18 @@
-﻿import Image from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { Tag } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { formatCurrency, decimalToNumber } from "@/lib/utils";
 
-export function ProductCard({
+export function TarjetaProducto({
   id,
   name,
   category,
   imageCloudinary,
-  latestPrice,
+  precioMasReciente,
 }) {
   return (
-    <Link href={`/dashboard/products/${id}`}>
+    <Link href={`/dashboard/productos/${id}`}>
       <Card className="group h-full transition hover:-translate-y-0.5 hover:shadow-md hover:shadow-emerald-900/10">
         <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-xl bg-emerald-50">
           {imageCloudinary ? (
@@ -35,13 +35,13 @@ export function ProductCard({
             {category}
           </p>
         ) : null}
-        {latestPrice ? (
+        {precioMasReciente ? (
           <p className="mt-3 text-sm text-emerald-800">
             Desde{" "}
             <span className="font-bold text-emerald-950">
-              {formatCurrency(decimalToNumber(latestPrice.price))}
+              {formatCurrency(decimalToNumber(precioMasReciente.price))}
             </span>{" "}
-            en {latestPrice.supermarket.name}
+            en {precioMasReciente.supermarket.name}
           </p>
         ) : (
           <p className="mt-3 text-sm text-amber-700">Sin precios registrados</p>

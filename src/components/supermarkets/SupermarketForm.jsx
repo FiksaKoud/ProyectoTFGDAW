@@ -1,32 +1,32 @@
-﻿"use client";
+"use client";
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
-  createSupermarket,
-  updateSupermarket,
-} from "@/lib/actions/supermarkets";
+  crearSupermercado,
+  actualizarSupermercado,
+} from "@/lib/actions/supermercados";
 import { ImageUpload } from "@/components/products/ImageUpload";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
-export function SupermarketForm({
-  supermarket,
-  cloudinaryEnabled = false,
+export function FormularioSupermercado({
+  supermercado,
+  cloudinaryHabilitado = false,
 }) {
   const router = useRouter();
   const [error, setError] = useState(null);
-  const [pending, startTransition] = useTransition();
+  const [pendiente, iniciarTransicion] = useTransition();
 
-  function handleSubmit(formData) {
+  function alEnviar(formData) {
     setError(null);
-    startTransition(async () => {
-      const result = supermarket
-        ? await updateSupermarket(supermarket.id, formData)
-        : await createSupermarket(formData);
+    iniciarTransicion(async () => {
+      const resultado = supermercado
+        ? await actualizarSupermercado(supermercado.id, formData)
+        : await crearSupermercado(formData);
 
-      if (!result.success) {
-        setError(result.error);
+      if (!resultado.success) {
+        setError(resultado.error);
         return;
       }
       router.refresh();
@@ -34,27 +34,27 @@ export function SupermarketForm({
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4">
+    <form action={alEnviar} className="space-y-4">
       <Input
         name="name"
         label="Nombre"
-        defaultValue={supermarket?.name}
+        defaultValue={supermercado?.name}
         required
         placeholder="Ej. Mercadona"
       />
 
       <ImageUpload
         variant="supermarket"
-        defaultUrl={supermarket?.logoUrl}
-        uploadEnabled={cloudinaryEnabled}
+        defaultUrl={supermercado?.logoUrl}
+        uploadEnabled={cloudinaryHabilitado}
       />
 
-      {!cloudinaryEnabled ? (
+      {!cloudinaryHabilitado ? (
         <Input
           name="logoUrl"
           label="URL del logo"
           type="url"
-          defaultValue={supermarket?.logoUrl ?? ""}
+          defaultValue={supermercado?.logoUrl ?? ""}
           placeholder="https://..."
         />
       ) : null}
@@ -62,13 +62,13 @@ export function SupermarketForm({
       <Input
         name="location"
         label="Ubicación"
-        defaultValue={supermarket?.location ?? ""}
+        defaultValue={supermercado?.location ?? ""}
         placeholder="Ej. Calle Mayor 12, Madrid"
       />
 
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
-      <Button type="submit" disabled={pending}>
-        {pending ? "Guardando…" : supermarket ? "Actualizar" : "Añadir tienda"}
+      <Button type="submit" disabled={pendiente}>
+        {pendiente ? "Guardando…" : supermercado ? "Actualizar" : "Añadir tienda"}
       </Button>
     </form>
   );

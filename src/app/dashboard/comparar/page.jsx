@@ -1,26 +1,26 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { Suspense } from "react";
-import { compareList, getShoppingLists } from "@/lib/actions/shopping-lists";
-import { getActiveListId } from "@/lib/actions/preferences";
+import { compararLista, obtenerListasCompra } from "@/lib/actions/listas-compra";
+import { obtenerIdListaActiva } from "@/lib/actions/preferencias";
 import { CompareResults } from "@/components/compare/CompareResults";
 import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 export const metadata = { title: "Comparar cesta" };
 
-async function CompareContent({ listId }) {
-  const comparison = await compareList(listId);
-  if (!comparison) {
+async function ContenidoComparacion({ idLista }) {
+  const comparacion = await compararLista(idLista);
+  if (!comparacion) {
     return (
       <Card>
         <p className="text-emerald-800">Lista no encontrada.</p>
       </Card>
     );
   }
-  return <CompareResults comparison={comparison} />;
+  return <CompareResults comparison={comparacion} />;
 }
 
-function CompareSkeleton() {
+function EsqueletoComparacion() {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <Skeleton className="h-40" />
@@ -29,13 +29,18 @@ function CompareSkeleton() {
   );
 }
 
-export default async function ComparePage() {
-  const [lists, activeListId] = await Promise.all([
-    getShoppingLists(),
-    getActiveListId(),
+export default async function PaginaComparar() {
+  const [listas, idListaActiva] = await Promise.all([
+    obtenerListasCompra(),
+    obtenerIdListaActiva(),
   ]);
 
-  const listId = activeListId ?? lists[0]?.id;
+  const idLista = idListaActiva ?? listas[0]?.id;
+  console.log('PaginaComparar - idListaActiva:', idListaActiva);
+  console.log('PaginaComparar - idLista final:', idLista);
+  
+  const listaSeleccionada = listas.find(l => l.id === idLista);
+  console.log('PaginaComparar - listaSeleccionada:', listaSeleccionada?.name, 'Items:', listaSeleccionada?._count?.items);
 
   return (
     <div className="space-y-6">
@@ -46,11 +51,11 @@ export default async function ComparePage() {
         </p>
       </div>
 
-      {lists.length === 0 ? (
+      {listas.length === 0 ? (
         <Card>
           <p className="text-emerald-800">
             Crea una{" "}
-            <Link href="/dashboard/lists" className="font-medium underline">
+            <Link href="/dashboard/listas" className="font-medium underline">
               lista de compra
             </Link>{" "}
             para empezar a comparar.
@@ -62,18 +67,18 @@ export default async function ComparePage() {
             <p className="text-sm text-emerald-700">
               Lista activa:{" "}
               <span className="font-semibold text-emerald-950">
-                {lists.find((l) => l.id === listId)?.name ?? lists[0]?.name}
+                {listas.find((l) => l.id === idLista)?.name ?? listas[0]?.name}
               </span>
               . Cambia la lista desde{" "}
-              <Link href="/dashboard/lists" className="underline">
+              <Link href="/dashboard/listas" className="underline">
                 Listas
               </Link>
               .
             </p>
           </Card>
-          {listId ? (
-            <Suspense fallback={<CompareSkeleton />}>
-              <CompareContent listId={listId} />
+          {idLista ? (
+            <Suspense fallback={<EsqueletoComparacion />}>
+              <ContenidoComparacion idLista={idLista} />
             </Suspense>
           ) : null}
         </>

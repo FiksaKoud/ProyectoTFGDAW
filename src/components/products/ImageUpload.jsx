@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import { useRef, useState, useTransition } from "react";
@@ -6,6 +6,7 @@ import { Camera, Loader2, X } from "lucide-react";
 import {
   uploadProductImageAction,
   uploadSupermarketLogoAction,
+  uploadProfileImageAction,
 } from "@/lib/actions/upload";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -17,13 +18,26 @@ export function ImageUpload({
   label,
   variant = "product",
 }) {
-  const fieldName = name ?? (variant === "supermarket" ? "logoUrl" : "imageCloudinary");
+  const fieldName =
+    name ??
+    (variant === "supermarket"
+      ? "logoUrl"
+      : variant === "profile"
+        ? "image"
+        : "imageCloudinary");
   const fieldLabel =
-    label ?? (variant === "supermarket" ? "Logo de la tienda" : "Foto del producto");
+    label ??
+    (variant === "supermarket"
+      ? "Logo de la tienda"
+      : variant === "profile"
+        ? "Foto de perfil"
+        : "Foto del producto");
   const uploadAction =
     variant === "supermarket"
       ? uploadSupermarketLogoAction
-      : uploadProductImageAction;
+      : variant === "profile"
+        ? uploadProfileImageAction
+        : uploadProductImageAction;
   const inputRef = useRef(null);
   const [preview, setPreview] = useState(defaultUrl ?? null);
   const [url, setUrl] = useState(defaultUrl ?? "");
@@ -69,7 +83,8 @@ export function ImageUpload({
 
       <div
         className={cn(
-          "relative flex aspect-[4/3] flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-emerald-200 bg-emerald-50/50",
+          "relative flex flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-emerald-200 bg-emerald-50/50",
+          variant === "profile" ? "aspect-square" : "aspect-[4/3]",
           preview && "border-solid border-emerald-200",
         )}
       >
@@ -91,7 +106,7 @@ export function ImageUpload({
             <button
               type="button"
               onClick={clearImage}
-              className="absolute right-2 top-2 rounded-full bg-white/90 p-1.5 shadow hover:bg-white"
+              className="absolute right-2 top-2 z-10 rounded-full bg-white/90 p-1.5 shadow hover:bg-white"
               aria-label="Quitar imagen"
             >
               <X className="h-4 w-4 text-emerald-900" />

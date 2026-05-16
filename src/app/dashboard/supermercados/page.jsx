@@ -1,10 +1,10 @@
-﻿import { Suspense } from "react";
-import { SupermarketList } from "@/components/supermarkets/SupermarketList";
+import { Suspense } from "react";
+import { ListaSupermercados } from "@/components/supermarkets/SupermarketList";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 export const metadata = { title: "Supermercados" };
 
-function SupermarketListSkeleton() {
+function EsqueletoListaSupermercados() {
   return (
     <div className="space-y-4">
       <Skeleton className="h-48 w-full" />
@@ -13,7 +13,7 @@ function SupermarketListSkeleton() {
   );
 }
 
-export default function SupermarketsPage() {
+export default function PaginaSupermercados() {
   return (
     <div className="space-y-6">
       <div>
@@ -22,8 +22,8 @@ export default function SupermarketsPage() {
           Crea perfiles de tienda para registrar y comparar precios.
         </p>
       </div>
-      <Suspense fallback={<SupermarketListSkeleton />}>
-        <SupermarketList />
+      <Suspense fallback={<EsqueletoListaSupermercados />}>
+        <ListaSupermercados />
       </Suspense>
     </div>
   );

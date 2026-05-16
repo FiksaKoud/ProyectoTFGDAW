@@ -6,11 +6,11 @@ import { requireUserId } from "@/lib/auth";
 import { compareShoppingList } from "@/lib/compare";
 import { prisma } from "@/lib/prisma";
 
-const listSchema = z.object({
+const esquemaLista = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
 });
 
-export async function getShoppingLists() {
+export async function obtenerListasCompra() {
   const userId = await requireUserId();
   return prisma.shoppingList.findMany({
     where: { userId },
@@ -19,7 +19,7 @@ export async function getShoppingLists() {
   });
 }
 
-export async function getShoppingListById(id) {
+export async function obtenerListaCompraPorId(id) {
   const userId = await requireUserId();
   return prisma.shoppingList.findFirst({
     where: { id, userId },
@@ -32,41 +32,41 @@ export async function getShoppingListById(id) {
   });
 }
 
-export async function createShoppingList(formData) {
+export async function crearListaCompra(formData) {
   try {
     const userId = await requireUserId();
-    const parsed = listSchema.safeParse({ name: formData.get("name") });
+    const validacion = esquemaLista.safeParse({ name: formData.get("name") });
 
-    if (!parsed.success) {
-      return { success: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+    if (!validacion.success) {
+      return { success: false, error: validacion.error.issues[0]?.message ?? "Datos inválidos" };
     }
 
-    const list = await prisma.shoppingList.create({
-      data: { userId, name: parsed.data.name },
+    const lista = await prisma.shoppingList.create({
+      data: { userId, name: validacion.data.name },
     });
 
-    revalidatePath("/dashboard/lists");
-    revalidatePath("/dashboard/compare");
+    revalidatePath("/dashboard/listas");
+    revalidatePath("/dashboard/comparar");
 
-    return { success: true, data: { id: list.id } };
+    return { success: true, data: { id: lista.id } };
   } catch {
     return { success: false, error: "No se pudo crear la lista" };
   }
 }
 
-export async function deleteShoppingList(id) {
+export async function eliminarListaCompra(id) {
   try {
     const userId = await requireUserId();
-    const result = await prisma.shoppingList.deleteMany({
+    const resultado = await prisma.shoppingList.deleteMany({
       where: { id, userId },
     });
 
-    if (result.count === 0) {
+    if (resultado.count === 0) {
       return { success: false, error: "Lista no encontrada" };
     }
 
-    revalidatePath("/dashboard/lists");
-    revalidatePath("/dashboard/compare");
+    revalidatePath("/dashboard/listas");
+    revalidatePath("/dashboard/comparar");
 
     return { success: true, data: undefined };
   } catch {
@@ -74,18 +74,18 @@ export async function deleteShoppingList(id) {
   }
 }
 
-export async function addItemToList(listId, productId, quantity = 1) {
+export async function añadirItemALista(listId, productId, quantity = 1) {
   try {
     const userId = await requireUserId();
 
-    const list = await prisma.shoppingList.findFirst({
+    const lista = await prisma.shoppingList.findFirst({
       where: { id: listId, userId },
     });
-    const product = await prisma.product.findFirst({
+    const producto = await prisma.product.findFirst({
       where: { id: productId, userId },
     });
 
-    if (!list || !product) {
+    if (!lista || !producto) {
       return { success: false, error: "Lista o producto no válido" };
     }
 
@@ -97,8 +97,8 @@ export async function addItemToList(listId, productId, quantity = 1) {
       update: { quantity: { increment: quantity } },
     });
 
-    revalidatePath(`/dashboard/lists/${listId}`);
-    revalidatePath("/dashboard/compare");
+    revalidatePath(`/dashboard/listas/${listId}`);
+    revalidatePath("/dashboard/comparar");
 
     return { success: true, data: undefined };
   } catch {
@@ -106,17 +106,17 @@ export async function addItemToList(listId, productId, quantity = 1) {
   }
 }
 
-export async function quickAddProductToList(listId, name, price, supermarketId) {
+export async function añadidoRapidoProductoALista(listId, name, price, supermarketId) {
   try {
     const userId = await requireUserId();
 
     // 1. Buscar o crear producto
-    let product = await prisma.product.findFirst({
+    let producto = await prisma.product.findFirst({
       where: { name: { equals: name }, userId },
     });
 
-    if (!product) {
-      product = await prisma.product.create({
+    if (!producto) {
+      producto = await prisma.product.create({
         data: { userId, name },
       });
     }
@@ -125,7 +125,7 @@ export async function quickAddProductToList(listId, name, price, supermarketId) 
     if (price && supermarketId) {
       await prisma.priceRecord.create({
         data: {
-          productId: product.id,
+          productId: producto.id,
           supermarketId,
           price: parseFloat(price),
         },
@@ -135,15 +135,15 @@ export async function quickAddProductToList(listId, name, price, supermarketId) 
     // 3. Añadir a la lista
     await prisma.shoppingListItem.upsert({
       where: {
-        shoppingListId_productId: { shoppingListId: listId, productId: product.id },
+        shoppingListId_productId: { shoppingListId: listId, productId: producto.id },
       },
-      create: { shoppingListId: listId, productId: product.id, quantity: 1 },
+      create: { shoppingListId: listId, productId: producto.id, quantity: 1 },
       update: { quantity: { increment: 1 } },
     });
 
-    revalidatePath(`/dashboard/lists/${listId}`);
-    revalidatePath("/dashboard/compare");
-    revalidatePath("/dashboard/products");
+    revalidatePath(`/dashboard/listas/${listId}`);
+    revalidatePath("/dashboard/comparar");
+    revalidatePath("/dashboard/productos");
 
     return { success: true };
   } catch (error) {
@@ -152,10 +152,7 @@ export async function quickAddProductToList(listId, name, price, supermarketId) 
   }
 }
 
-export async function updateListItemQuantity(
-  itemId,
-  quantity,
-) {
+export async function actualizarCantidadItem(itemId, quantity) {
   try {
     const userId = await requireUserId();
 
@@ -176,8 +173,8 @@ export async function updateListItemQuantity(
       data: { quantity },
     });
 
-    revalidatePath(`/dashboard/lists/${item.shoppingListId}`);
-    revalidatePath("/dashboard/compare");
+    revalidatePath(`/dashboard/listas/${item.shoppingListId}`);
+    revalidatePath("/dashboard/comparar");
 
     return { success: true, data: undefined };
   } catch {
@@ -185,7 +182,7 @@ export async function updateListItemQuantity(
   }
 }
 
-export async function removeItemFromList(itemId) {
+export async function quitarItemDeLista(itemId) {
   try {
     const userId = await requireUserId();
 
@@ -199,8 +196,8 @@ export async function removeItemFromList(itemId) {
 
     await prisma.shoppingListItem.delete({ where: { id: itemId } });
 
-    revalidatePath(`/dashboard/lists/${item.shoppingListId}`);
-    revalidatePath("/dashboard/compare");
+    revalidatePath(`/dashboard/listas/${item.shoppingListId}`);
+    revalidatePath("/dashboard/comparar");
 
     return { success: true, data: undefined };
   } catch {
@@ -208,7 +205,7 @@ export async function removeItemFromList(itemId) {
   }
 }
 
-export async function compareList(listId) {
+export async function compararLista(listId) {
   const userId = await requireUserId();
   return compareShoppingList(listId, userId);
 }

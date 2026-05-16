@@ -1,23 +1,24 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BarChart3,
   LayoutDashboard,
   ListChecks,
   Package,
   Scale,
   Store,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
   { href: "/dashboard", label: "Inicio", icon: LayoutDashboard },
-  { href: "/dashboard/supermarkets", label: "Tiendas", icon: Store },
-  { href: "/dashboard/products", label: "Productos", icon: Package },
-  { href: "/dashboard/lists", label: "Listas", icon: ListChecks },
-  { href: "/dashboard/compare", label: "Comparar", icon: Scale },
+  { href: "/dashboard/supermercados", label: "Tiendas", icon: Store },
+  { href: "/dashboard/productos", label: "Productos", icon: Package },
+  { href: "/dashboard/listas", label: "Listas", icon: ListChecks },
+  { href: "/dashboard/comparar", label: "Comparar", icon: Scale },
+  { href: "/dashboard/perfil", label: "Perfil", icon: User },
 ];
 
 export function DashboardNav() {
@@ -48,15 +49,6 @@ export function DashboardNav() {
             </li>
           );
         })}
-        <li className="hidden md:list-item">
-          <Link
-            href="/dashboard/products"
-            className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-emerald-700 hover:bg-emerald-50"
-          >
-            <BarChart3 className="h-5 w-5" />
-            Histórico
-          </Link>
-        </li>
       </ul>
     </nav>
   );

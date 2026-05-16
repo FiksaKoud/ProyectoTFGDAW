@@ -1,4 +1,4 @@
-﻿"use server";
+"use server";
 
 import { requireUserId } from "@/lib/auth";
 import { uploadImage, isCloudinaryConfigured } from "@/lib/cloudinary";
@@ -30,6 +30,10 @@ export async function uploadProductImageAction(formData) {
 
 export async function uploadSupermarketLogoAction(formData) {
   return handleUpload(formData, "supermarkets");
+}
+
+export async function uploadProfileImageAction(formData) {
+  return handleUpload(formData, "profiles");
 }
 
 export async function getCloudinaryStatus() {

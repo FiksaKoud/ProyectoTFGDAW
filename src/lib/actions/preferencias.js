@@ -7,7 +7,7 @@ import {
   PREFERRED_SUPERMARKET_COOKIE,
 } from "@/lib/constants";
 
-export async function setPreferredSupermarket(supermarketId) {
+export async function establecerSupermercadoPreferido(supermarketId) {
   const cookieStore = await cookies();
   cookieStore.set(PREFERRED_SUPERMARKET_COOKIE, supermarketId, {
     path: "/",
@@ -15,26 +15,26 @@ export async function setPreferredSupermarket(supermarketId) {
     sameSite: "lax",
   });
   revalidatePath("/dashboard");
-  revalidatePath("/dashboard/products");
+  revalidatePath("/dashboard/productos");
 }
 
-export async function setActiveList(listId) {
+export async function establecerListaActiva(listId) {
   const cookieStore = await cookies();
   cookieStore.set(ACTIVE_LIST_COOKIE, listId, {
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
     sameSite: "lax",
   });
-  revalidatePath("/dashboard/lists");
-  revalidatePath("/dashboard/compare");
+  revalidatePath("/dashboard/listas");
+  revalidatePath("/dashboard/comparar");
 }
 
-export async function getPreferredSupermarketId() {
+export async function obtenerIdSupermercadoPreferido() {
   const cookieStore = await cookies();
   return cookieStore.get(PREFERRED_SUPERMARKET_COOKIE)?.value ?? null;
 }
 
-export async function getActiveListId() {
+export async function obtenerIdListaActiva() {
   const cookieStore = await cookies();
   return cookieStore.get(ACTIVE_LIST_COOKIE)?.value ?? null;
 }
