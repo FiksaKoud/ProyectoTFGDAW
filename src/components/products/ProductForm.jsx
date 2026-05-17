@@ -17,6 +17,7 @@ export function FormularioProducto({
   const router = useRouter();
   const [error, setError] = useState(null);
   const [pendiente, iniciarTransicion] = useTransition();
+  const [formKey, setFormKey] = useState(Date.now());
 
   function handleSubmit(formData) {
     setError(null);
@@ -33,13 +34,17 @@ export function FormularioProducto({
       if (!producto && resultado.data?.id) {
         router.push(`/dashboard/productos/${resultado.data.id}`);
       } else {
+        if (!producto) {
+          // Si creamos desde un modal o lista que no redirige
+          setFormKey(Date.now());
+        }
         router.refresh();
       }
     });
   }
 
   return (
-    <form action={handleSubmit} className="space-y-6">
+    <form key={formKey} action={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <Input
           name="name"

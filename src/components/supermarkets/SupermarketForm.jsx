@@ -17,6 +17,7 @@ export function FormularioSupermercado({
   const router = useRouter();
   const [error, setError] = useState(null);
   const [pendiente, iniciarTransicion] = useTransition();
+  const [formKey, setFormKey] = useState(Date.now());
 
   function alEnviar(formData) {
     setError(null);
@@ -29,12 +30,18 @@ export function FormularioSupermercado({
         setError(resultado.error);
         return;
       }
+      
+      if (!supermercado) {
+        // Al crear uno nuevo, forzamos que se vacíe todo
+        setFormKey(Date.now());
+      }
+      
       router.refresh();
     });
   }
 
   return (
-    <form action={alEnviar} className="space-y-4">
+    <form key={formKey} action={alEnviar} className="space-y-4">
       <Input
         name="name"
         label="Nombre"
