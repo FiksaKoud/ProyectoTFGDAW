@@ -45,6 +45,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+  events: {
+    async createUser({ user }) {
+      // Auto-promover a ADMIN al creador del proyecto
+      if (user.email === "delgadoruzadrian@gmail.com") {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { role: "ADMIN" },
+        });
+      }
+    },
+  },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       if (nextUrl.pathname.startsWith("/dashboard")) {

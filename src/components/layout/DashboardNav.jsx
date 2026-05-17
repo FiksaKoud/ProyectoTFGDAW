@@ -36,18 +36,18 @@ export function DashboardNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-emerald-100 bg-white/95 backdrop-blur md:static md:border-0 md:bg-transparent md:backdrop-blur-none">
-      <ul className="mx-auto flex max-w-6xl items-stretch justify-around gap-1 px-2 py-2 md:flex-col md:justify-start md:gap-2 md:px-0 md:py-0">
+      <ul className="mx-auto flex max-w-6xl overflow-x-auto flex-nowrap items-stretch justify-start gap-1 px-2 py-2 md:flex-col md:justify-start md:overflow-visible md:gap-2 md:px-0 md:py-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {links.map(({ href, label, icon: Icon }) => {
           const active =
             pathname === href ||
             (href !== "/dashboard" && pathname.startsWith(href));
 
           return (
-            <li key={href} className="flex-1 md:flex-none">
+            <li key={href} className="flex-none min-w-[72px] md:min-w-0 md:w-full">
               <Link
                 href={href}
                 className={cn(
-                  "flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-xs font-medium transition md:flex-row md:gap-3 md:px-4 md:py-3 md:text-sm",
+                  "flex h-full flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-medium transition md:flex-row md:justify-start md:gap-3 md:px-4 md:py-3 md:text-sm",
                   active
                     ? "bg-emerald-600 text-white md:bg-emerald-50 md:text-emerald-900"
                     : "text-emerald-700 hover:bg-emerald-50",
@@ -70,11 +70,11 @@ export function DashboardNav() {
             {adminLinks.map(({ href, label, icon: Icon }) => {
               const active = pathname === href || pathname.startsWith(href);
               return (
-                <li key={href} className="flex-1 md:flex-none">
+                <li key={href} className="flex-none min-w-[72px] md:min-w-0 md:w-full">
                   <Link
                     href={href}
                     className={cn(
-                      "flex flex-col items-center gap-1 rounded-xl px-2 py-2 text-xs font-medium transition md:flex-row md:gap-3 md:px-4 md:py-3 md:text-sm",
+                      "flex h-full flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-xs font-medium transition md:flex-row md:justify-start md:gap-3 md:px-4 md:py-3 md:text-sm",
                       active
                         ? "bg-emerald-600 text-white md:bg-emerald-50 md:text-emerald-900"
                         : "text-emerald-700 hover:bg-emerald-50",
