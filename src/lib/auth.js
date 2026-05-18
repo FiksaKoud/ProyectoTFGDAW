@@ -1,22 +1,15 @@
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Credentials from "next-auth/providers/credentials";
-import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { authConfig } from "./auth.config";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
-  pages: {
-    signIn: "/login",
-  },
   providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
-      allowDangerousEmailAccountLinking: true,
-    }),
+    ...authConfig.providers,
     Credentials({
       name: "credentials",
       credentials: {
@@ -24,8 +17,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Contraseña", type: "password" },
       },
       async authorize(credentials) {
-        const email = credentials?.email ;
-        const password = credentials?.password ;
+        const email = credentials?.email;
+        const password = credentials?.password;
 
         if (!email || !password) return null;
 
@@ -47,7 +40,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   events: {
     async createUser({ user }) {
-      // Auto-promover a ADMIN al creador del proyecto
       if (user.email === "delgadoruzadrian@gmail.com") {
         await prisma.user.update({
           where: { id: user.id },
@@ -57,12 +49,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      if (nextUrl.pathname.startsWith("/dashboard")) {
-        return !!auth;
-      }
-      return true;
-    },
+    ...authConfig.callbacks,
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;
@@ -82,13 +69,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
       }
       return token;
-    },
-    session({ session, token }) {
-      if (session.user && token.sub) {
-        session.user.id = token.sub;
-        session.user.role = token.role;
-      }
-      return session;
     },
   },
 });
