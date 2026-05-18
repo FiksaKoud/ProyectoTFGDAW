@@ -32,7 +32,7 @@ export function DashboardNav() {
   const { data: session } = useSession();
   const isAdmin = session?.user?.role === "ADMIN";
 
-  const allLinks = isAdmin ? [...links, ...adminLinks] : links;
+  // const allLinks = isAdmin ? [...links, ...adminLinks] : links;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-emerald-100 bg-white/95 backdrop-blur md:static md:border-0 md:bg-transparent md:backdrop-blur-none">
