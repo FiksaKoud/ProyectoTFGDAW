@@ -62,7 +62,10 @@ export default async function UsersPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <UserRoleToggle user={user} />
+                    <UserRoleToggle
+                      user={user}
+                      isCurrentUser={user.id === currentAdminId}
+                    />
                   </td>
                   <td className="px-6 py-4 text-sm text-emerald-700">
                     <div className="flex flex-col gap-1 text-xs">
