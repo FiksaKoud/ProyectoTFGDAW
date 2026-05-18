@@ -1,7 +1,10 @@
 ﻿import NextAuth from "next-auth";
-import { authConfig } from "@/lib/auth.config";
+import { authConfig } from "./lib/auth.config";
 
-export const { auth: middleware } = NextAuth(authConfig);
+const { auth } = NextAuth(authConfig);
+
+// Usamos el export default para máxima compatibilidad con las versiones más recientes de Next.js
+export default auth;
 
 export const config = {
   matcher: ["/dashboard/:path*"],
