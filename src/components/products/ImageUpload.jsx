@@ -11,6 +11,62 @@ import {
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
+function compressImage(file, maxWidth = 1024, maxHeight = 1024, quality = 0.8) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File(
+                [blob],
+                file.name.replace(/\.[^/.]+$/, "") + ".jpg",
+                {
+                  type: "image/jpeg",
+                  lastModified: Date.now(),
+                }
+              );
+              resolve(compressedFile);
+            } else {
+              reject(new Error("La compresión de la imagen falló"));
+            }
+          },
+          "image/jpeg",
+          quality
+        );
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+}
+
 export function ImageUpload({
   name,
   defaultUrl,
@@ -44,13 +100,23 @@ export function ImageUpload({
   const [error, setError] = useState(null);
   const [pending, startTransition] = useTransition();
 
-  function handleFile(file) {
+  async function handleFile(file) {
     setError(null);
-    const localPreview = URL.createObjectURL(file);
+
+    let fileToUpload = file;
+    if (file.type.startsWith("image/")) {
+      try {
+        fileToUpload = await compressImage(file);
+      } catch (err) {
+        console.error("Error al comprimir imagen, se usará la original:", err);
+      }
+    }
+
+    const localPreview = URL.createObjectURL(fileToUpload);
     setPreview(localPreview);
 
     const fd = new FormData();
-    fd.append("file", file);
+    fd.append("file", fileToUpload);
 
     startTransition(async () => {
       const result = await uploadAction(fd);
