@@ -81,6 +81,7 @@ export default async function PaginaDetalleProducto({ params }) {
       <Card>
         <h2 className="mb-4 font-semibold">Registrar precio</h2>
         <FormularioRegistroPrecio
+          key={`${idTiendaSeleccionada}-${JSON.stringify(preciosActuales)}`}
           idProducto={productoSerializado.id}
           supermercados={supermercados}
           idSupermercadoDefecto={idTiendaSeleccionada}

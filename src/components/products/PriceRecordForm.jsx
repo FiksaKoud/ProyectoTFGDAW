@@ -16,6 +16,9 @@ export function FormularioRegistroPrecio({
   const [selectedSupermarket, setSelectedSupermarket] = useState(
     idSupermercadoDefecto ?? supermercados[0]?.id ?? ""
   );
+  const [precioInput, setPrecioInput] = useState(
+    preciosActuales[idSupermercadoDefecto ?? supermercados[0]?.id] ?? ""
+  );
 
   if (supermercados.length === 0) {
     return (
@@ -47,7 +50,11 @@ export function FormularioRegistroPrecio({
           id="supermarketId"
           name="supermarketId"
           value={selectedSupermarket}
-          onChange={(e) => setSelectedSupermarket(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            setSelectedSupermarket(val);
+            setPrecioInput(preciosActuales[val] ?? "");
+          }}
           className="h-11 w-full rounded-xl border border-emerald-200 bg-white px-3 text-sm"
           required
         >
@@ -59,7 +66,6 @@ export function FormularioRegistroPrecio({
         </select>
       </div>
       <Input
-        key={`${selectedSupermarket}-${precioActual ?? ""}`}
         name="price"
         label={
           precioActual !== undefined
@@ -69,7 +75,8 @@ export function FormularioRegistroPrecio({
         type="number"
         step="0.01"
         min="0.01"
-        defaultValue={precioActual ?? ""}
+        value={precioInput}
+        onChange={(e) => setPrecioInput(e.target.value)}
         required
         className="w-full sm:max-w-[170px]"
       />
