@@ -195,7 +195,7 @@ export function ImageUpload({
             type="file"
             accept="image/jpeg,image/png,image/webp,image/gif"
             capture="environment"
-            className="absolute inset-0 cursor-pointer opacity-0"
+            className={preview ? "hidden" : "absolute inset-0 cursor-pointer opacity-0"}
             disabled={pending}
             onChange={(e) => {
               const file = e.target.files?.[0];
