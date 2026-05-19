@@ -9,9 +9,13 @@ export function FormularioRegistroPrecio({
   idProducto,
   supermercados,
   idSupermercadoDefecto,
+  preciosActuales = {},
 }) {
   const [error, setError] = useState(null);
   const [pendiente, iniciarTransicion] = useTransition();
+  const [selectedSupermarket, setSelectedSupermarket] = useState(
+    idSupermercadoDefecto ?? supermercados[0]?.id ?? ""
+  );
 
   if (supermercados.length === 0) {
     return (
@@ -20,6 +24,8 @@ export function FormularioRegistroPrecio({
       </p>
     );
   }
+
+  const precioActual = preciosActuales[selectedSupermarket];
 
   return (
     <form
@@ -40,7 +46,8 @@ export function FormularioRegistroPrecio({
         <select
           id="supermarketId"
           name="supermarketId"
-          defaultValue={idSupermercadoDefecto ?? supermercados[0]?.id}
+          value={selectedSupermarket}
+          onChange={(e) => setSelectedSupermarket(e.target.value)}
           className="h-11 w-full rounded-xl border border-emerald-200 bg-white px-3 text-sm"
           required
         >
@@ -52,13 +59,19 @@ export function FormularioRegistroPrecio({
         </select>
       </div>
       <Input
+        key={`${selectedSupermarket}-${precioActual ?? ""}`}
         name="price"
-        label="Precio (€)"
+        label={
+          precioActual !== undefined
+            ? `Precio (€) (Actual: ${precioActual}€)`
+            : "Precio (€)"
+        }
         type="number"
         step="0.01"
         min="0.01"
+        defaultValue={precioActual ?? ""}
         required
-        className="w-full sm:max-w-[140px]"
+        className="w-full sm:max-w-[170px]"
       />
       <Button type="submit" disabled={pendiente}>
         {pendiente ? "Guardando…" : "Registrar precio"}

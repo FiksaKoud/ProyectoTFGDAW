@@ -38,6 +38,11 @@ export default async function PaginaDetalleProducto({ params }) {
     })),
   };
 
+  const preciosActuales = {};
+  productoSerializado.priceRecords.forEach((r) => {
+    preciosActuales[r.supermarketId] = r.price;
+  });
+
   const idTiendaSeleccionada = idPreferido ?? supermercados[0]?.id ?? null;
   const historialPorTienda = supermercados.map((tienda) => {
     const puntos = productoSerializado.priceRecords
@@ -79,6 +84,7 @@ export default async function PaginaDetalleProducto({ params }) {
           idProducto={productoSerializado.id}
           supermercados={supermercados}
           idSupermercadoDefecto={idTiendaSeleccionada}
+          preciosActuales={preciosActuales}
         />
       </Card>
 
